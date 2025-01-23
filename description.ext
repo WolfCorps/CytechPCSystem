@@ -1,0 +1,49 @@
+import RscText;
+
+class RscCytechDisplay
+{
+	idd = 13371337;
+	fadein = 0; // Required parameters for RscTitles
+	fadeout = 0;
+	duration = 1e+011;
+
+	onLoad = "_this call ded_fnc_OSDisplayLoad";
+
+	class controls
+	{
+		class Texture: RscText
+		{
+			type = 106; // CT_WEBBROWSER
+			idc = 1337;
+			x = 0; // Full screen from corner to corner
+			y = 0;
+			w = 1;
+			h = 1;
+			url = "file://hudOverlay.html"; // Reference to a file inside our mission
+		};
+	};
+};
+
+class RscCytechDisplayControl
+{
+	idd = 13371337;
+	fadein = 0; // Required parameters for RscTitles
+	fadeout = 0;
+	duration = 1e+011;
+
+	//onLoad = "_this call ded_fnc_OSDisplayLoad";
+
+	class controls
+	{
+		class Texture: RscText
+		{
+			type = 106; // CT_WEBBROWSER
+			idc = 1337;
+			x = safeZoneX+0.1;
+			y = safeZoneY+0.1;
+			w = safeZoneW-0.2;
+			h = safeZoneH-0.2;
+			url = "file://hudOverlay.html"; // Reference to a file inside our mission
+		};
+	};
+};

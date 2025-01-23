@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html style="font-size: 16px;" lang="de"><head>
+    <title>Welcome to CytechOS</title>
+
+	<script>
+		const decompressZlibToDataURL = base64string => {
+			const bytes = Uint8Array.from(atob(base64string), c => c.charCodeAt(0));
+			const cs = new DecompressionStream('deflate');
+			const writer = cs.writable.getWriter();
+			writer.write(bytes);
+			writer.close();
+			return new Response(cs.readable).arrayBuffer().then(function (arrayBuffer) {
+				return URL.createObjectURL(new Blob([arrayBuffer]));
+			});
+		};
+
+		A3API.RequestFile("CytechUI\\nicepage.css").then(x => {
+			decompressZlibToDataURL(x).then(x => {
+				var link = document.createElement('link');
+				link.type = 'text/css';
+				link.rel = 'stylesheet';
+				link.media = 'screen';
+				link.href = x;
+				document.head.appendChild(link);
+			});
+		});
+		
+		A3API.RequestFile("CytechUI\\font.css").then(x => {
+			var link = document.createElement('link');
+			link.type = 'text/css';
+			link.rel = 'stylesheet';
+			link.media = 'screen';
+			link.href = x;
+			document.head.appendChild(link);
+		});
+		
+		
+		
+	</script>
+    
+	<script>
+		var GCurrentState = {};
+		function UIUpdateState(newState) {
+			console.log("newstate", newState);
+			var wantedPage = newState.page ?? "loading";
+			if (wantedPage != GCurrentState.page)
+			{
+				window.OnPageStateUpdate = (x) => {};
+			
+				// Pageswitch
+				A3API.RequestFile(`CytechUI\\${wantedPage}.html`).then(x => {
+					document.getElementsByTagName('body')[0].innerHTML = x; 
+					nodeScriptReplace(document.getElementsByTagName("body")[0]);
+					window.OnPageStateUpdate(newState);
+					GCurrentState = newState;
+				});
+				GCurrentState.page = wantedPage;
+			}
+			else 
+			{
+				window.OnPageStateUpdate(newState);
+				GCurrentState = newState;
+			}
+		};
+		
+		function InternalModifyState(newProperties)
+		{
+			var newState = {...GCurrentState, ...newProperties};
+			UIUpdateState(newState);
+			//#TODO send event to arma
+			A3API.SendAlert("state"+JSON.stringify(GCurrentState));
+		};
+		
+		function nodeScriptReplace(node) {
+			if ( nodeScriptIs(node) === true ) {
+				node.parentNode.replaceChild( nodeScriptClone(node) , node );
+			} else {
+				var i = -1, children = node.childNodes;
+				while ( ++i < children.length ) {
+				  nodeScriptReplace( children[i] );
+				}
+			}
+
+			return node;
+		}
+		function nodeScriptClone(node){
+			var script  = document.createElement("script");
+			script.text = node.innerHTML;
+
+			var i = -1, attrs = node.attributes, attr;
+			while ( ++i < attrs.length ) {                                    
+				script.setAttribute( (attr = attrs[i]).name, attr.value );
+			}
+			return script;
+		}
+
+		function nodeScriptIs(node) {
+			return node.tagName === 'SCRIPT';
+		}
+		
+		
+	</script>
+
+  <body class="u-body u-xl-mode" data-lang="de">
+
+</body></html>
